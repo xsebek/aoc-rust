@@ -13,7 +13,7 @@ pub const ANSI_RESET: &str = "\x1b[0m";
 /// Helper function that reads a text file to a string.
 #[must_use]
 pub fn read_file(folder: &str, day: Day) -> String {
-    return read_file_indexed(folder, day, None);
+    read_file_indexed(folder, day, None)
 }
 
 /// Helper function that reads a text file to a string.
