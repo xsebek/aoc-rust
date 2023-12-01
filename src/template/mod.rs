@@ -13,8 +13,15 @@ pub const ANSI_RESET: &str = "\x1b[0m";
 /// Helper function that reads a text file to a string.
 #[must_use]
 pub fn read_file(folder: &str, day: Day) -> String {
+    return read_file_indexed(folder, day, None);
+}
+
+/// Helper function that reads a text file to a string.
+#[must_use]
+pub fn read_file_indexed(folder: &str, day: Day, index: Option<u8>) -> String {
     let cwd = env::current_dir().unwrap();
-    let filepath = cwd.join("data").join(folder).join(format!("{day}.txt"));
+    let suffix = index.map_or(String::new(), |i| format!("_{i}"));
+    let filepath = cwd.join("data").join(folder).join(format!("{day}{suffix}.txt"));
     let f = fs::read_to_string(filepath);
     f.expect("could not open input file")
 }
