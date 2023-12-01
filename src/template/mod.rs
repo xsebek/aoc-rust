@@ -21,7 +21,10 @@ pub fn read_file(folder: &str, day: Day) -> String {
 pub fn read_file_indexed(folder: &str, day: Day, index: Option<u8>) -> String {
     let cwd = env::current_dir().unwrap();
     let suffix = index.map_or(String::new(), |i| format!("_{i}"));
-    let filepath = cwd.join("data").join(folder).join(format!("{day}{suffix}.txt"));
+    let filepath = cwd
+        .join("data")
+        .join(folder)
+        .join(format!("{day}{suffix}.txt"));
     let f = fs::read_to_string(filepath);
     f.expect("could not open input file")
 }
