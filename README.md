@@ -1,4 +1,5 @@
-<img src="./.assets/christmas_ferris.png" width="164">
+<!--suppress CheckImageSize -->
+<img src="./.assets/christmas_ferris.png" alt="Christmas rust mascot" width="164">
 
 # 🎄 Advent of Code 2023
 
