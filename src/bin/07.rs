@@ -1,5 +1,5 @@
 use enum_iterator::{all, cardinality, Sequence};
-use itertools::{Itertools, repeat_n};
+use itertools::{repeat_n, Itertools};
 advent_of_code::solution!(7);
 
 fn solve(input: &str, wild_card: bool) -> Option<usize> {
@@ -9,12 +9,14 @@ fn solve(input: &str, wild_card: bool) -> Option<usize> {
         .map(|(h, b)| (rank_hand(h, wild_card), b))
         .sorted_by(|(eh1, _), (eh2, _)| Ord::cmp(eh1, eh2))
         .collect();
-    Some(win_ordered
-        .into_iter()
-        .map(|(_, b)| b)
-        .enumerate()
-        .map(|(i, b)| (i + 1) * b)
-        .sum())
+    Some(
+        win_ordered
+            .into_iter()
+            .map(|(_, b)| b)
+            .enumerate()
+            .map(|(i, b)| (i + 1) * b)
+            .sum(),
+    )
 }
 
 pub fn part_one(input: &str) -> Option<usize> {
@@ -31,7 +33,22 @@ type Hand = Vec<Card>;
 type Bid = usize;
 
 #[derive(Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Debug, Sequence)]
-enum Card { CJ2, C2, C3, C4, C5, C6, C7, C8, C9, CT, CJ, CQ, CK, CA, }
+enum Card {
+    CJ2,
+    C2,
+    C3,
+    C4,
+    C5,
+    C6,
+    C7,
+    C8,
+    C9,
+    CT,
+    CJ,
+    CQ,
+    CK,
+    CA,
+}
 
 #[derive(Ord, PartialOrd, Eq, PartialEq, Copy, Clone, Debug)]
 enum Rank {
@@ -60,16 +77,26 @@ fn char_to_card(c: char) -> Card {
         'Q' => CQ,
         'K' => CK,
         'A' => CA,
-        _ => panic!("Unknown card: {c}")
+        _ => panic!("Unknown card: {c}"),
     }
 }
 
 fn parse(input: &str) -> Input {
-    input.lines()
+    input
+        .lines()
         .map(|l| {
             let mut ws = l.split_ascii_whitespace();
-            let hand = ws.next().expect("bid string").chars().map(char_to_card).collect();
-            let bid = ws.next().expect("bid string").parse().expect("valid bid amount");
+            let hand = ws
+                .next()
+                .expect("bid string")
+                .chars()
+                .map(char_to_card)
+                .collect();
+            let bid = ws
+                .next()
+                .expect("bid string")
+                .parse()
+                .expect("valid bid amount");
             (hand, bid)
         })
         .collect()
@@ -77,7 +104,8 @@ fn parse(input: &str) -> Input {
 
 fn rank(hand: Hand) -> Rank {
     use crate::Rank::*;
-    let cards: Vec<usize> = hand.into_iter()
+    let cards: Vec<usize> = hand
+        .into_iter()
         .sorted()
         .group_by(|c| *c)
         .into_iter()
@@ -105,29 +133,38 @@ fn rank(hand: Hand) -> Rank {
 
 fn rank_hand(hand: Hand, wild_card: bool) -> (Rank, Hand) {
     if wild_card {
-        (wild_card_options(&hand).into_iter().map(rank).max().expect("a best hand"),
-        hand.into_iter().map(|c| if c == Card::CJ {Card::CJ2} else { c }).collect())
+        (
+            wild_card_options(&hand)
+                .into_iter()
+                .map(rank)
+                .max()
+                .expect("a best hand"),
+            hand.into_iter()
+                .map(|c| if c == Card::CJ { Card::CJ2 } else { c })
+                .collect(),
+        )
     } else {
         (rank(hand.clone()), hand)
     }
 }
 
 fn wild_card_options(hand: &Hand) -> Vec<Hand> {
-    transpose(hand
-        .iter()
-        .map(|c| {
-            if *c == Card::CJ {
-                all::<Card>().filter(|c| *c != Card::CJ).collect::<Vec<_>>()
-            } else {
-                repeat_n(*c, cardinality::<Card>() - 1).collect::<Vec<_>>()
-            }
-        })
-        .collect()
+    transpose(
+        hand.iter()
+            .map(|c| {
+                if *c == Card::CJ {
+                    all::<Card>().filter(|c| *c != Card::CJ).collect::<Vec<_>>()
+                } else {
+                    repeat_n(*c, cardinality::<Card>() - 1).collect::<Vec<_>>()
+                }
+            })
+            .collect(),
     )
 }
 
 fn transpose<T>(v: Vec<Vec<T>>) -> Vec<Vec<T>>
-    where T: Clone,
+where
+    T: Clone,
 {
     (0..v.first().map_or(0, |f| f.len()))
         .map(|i| v.iter().map(|inner| inner[i].clone()).collect::<Vec<T>>())

@@ -100,7 +100,9 @@ mod convert {
         }
 
         pub fn to_destination(self, range: Range) -> Range {
-            assert!(!range.is_empty() && !self.source().is_empty() && !self.destination().is_empty());
+            assert!(
+                !range.is_empty() && !self.source().is_empty() && !self.destination().is_empty()
+            );
             assert!(self.source().start <= range.start && range.stop <= self.source().stop);
             let start = self.destination_start + (range.start - self.source_start);
             let stop = start + (range.stop - range.start);
@@ -138,10 +140,7 @@ mod convert {
                 }
                 (rss, dss)
             });
-        ds.into_iter()
-            .chain(rs)
-            .filter(|d| !d.is_empty())
-            .collect()
+        ds.into_iter().chain(rs).filter(|d| !d.is_empty()).collect()
     }
 
     fn map_range(map: &Map, r: Range) -> (Vec<Range>, Option<Range>) {
@@ -157,8 +156,16 @@ mod convert {
         } else if s.start <= r.start && s.stop <= r.stop {
             // A|CB||BD|
             //  ^^^^
-            (vec![Range {start: s.stop, stop: r.stop}],
-             to_dest(Range {start: r.start, stop: s.stop}))
+            (
+                vec![Range {
+                    start: s.stop,
+                    stop: r.stop,
+                }],
+                to_dest(Range {
+                    start: r.start,
+                    stop: s.stop,
+                }),
+            )
         } else if r.start <= s.start && s.stop <= r.stop {
             // |CA||AB||BD|
             //     ^^^^

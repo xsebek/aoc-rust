@@ -2,16 +2,19 @@ use itertools::Itertools;
 advent_of_code::solution!(6);
 
 fn solve(input: &str, merge_digits: bool) -> Option<usize> {
-    let Input {times, distances} = parse(input, merge_digits)?;
-    Some(times.into_iter()
-        .zip(distances)
-        .map(|(t, d)| -> usize {
-            (1..t).map(|hold| (t - hold) * hold)
-                .filter(|dist| *dist > d)
-                .count()
-        })
-        .product1()
-        .unwrap_or(0)
+    let Input { times, distances } = parse(input, merge_digits)?;
+    Some(
+        times
+            .into_iter()
+            .zip(distances)
+            .map(|(t, d)| -> usize {
+                (1..t)
+                    .map(|hold| (t - hold) * hold)
+                    .filter(|dist| *dist > d)
+                    .count()
+            })
+            .product1()
+            .unwrap_or(0),
     )
 }
 
@@ -31,17 +34,38 @@ struct Input {
 fn parse(input: &str, merge: bool) -> Option<Input> {
     let mut lines = input.lines();
     if merge {
-        let time = lines.next()?.strip_prefix("Time:")?.split_ascii_whitespace().join("")
-            .parse().ok()?;
-        let distance = lines.next()?.strip_prefix("Distance:")?.split_ascii_whitespace().join("")
-            .parse().ok()?;
-        Some(Input {times: vec![time], distances: vec![distance]})
+        let time = lines
+            .next()?
+            .strip_prefix("Time:")?
+            .split_ascii_whitespace()
+            .join("")
+            .parse()
+            .ok()?;
+        let distance = lines
+            .next()?
+            .strip_prefix("Distance:")?
+            .split_ascii_whitespace()
+            .join("")
+            .parse()
+            .ok()?;
+        Some(Input {
+            times: vec![time],
+            distances: vec![distance],
+        })
     } else {
-        let times = lines.next()?.strip_prefix("Time:")?.split_ascii_whitespace()
-            .filter_map(|w| w.parse().ok()).collect();
-        let distances = lines.next()?.strip_prefix("Distance:")?.split_ascii_whitespace()
-            .filter_map(|w| w.parse().ok()).collect();
-        Some(Input {times, distances})
+        let times = lines
+            .next()?
+            .strip_prefix("Time:")?
+            .split_ascii_whitespace()
+            .filter_map(|w| w.parse().ok())
+            .collect();
+        let distances = lines
+            .next()?
+            .strip_prefix("Distance:")?
+            .split_ascii_whitespace()
+            .filter_map(|w| w.parse().ok())
+            .collect();
+        Some(Input { times, distances })
     }
 }
 
