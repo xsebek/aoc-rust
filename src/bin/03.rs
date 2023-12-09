@@ -81,17 +81,19 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let num_pos: Vec<(u32, Pos)> = input
+    let num_pos: Vec<Vec<(u32, Pos)>> = input
         .lines()
         .enumerate()
-        .flat_map(get_numbers_with_position)
+        .map(get_numbers_with_position)
         .collect();
+
     let mut sum = 0;
     for (row, line) in input.lines().enumerate() {
         for (col, c) in line.as_bytes().iter().enumerate() {
             if is_symbol(c) {
-                let neighbors: Vec<u32> = num_pos
+                let neighbors: Vec<u32> = num_pos[0.max(row - 1)..=num_pos.len().min(row + 1)]
                     .iter()
+                    .flatten()
                     .filter_map(|(n, p)| {
                         if pos_neighborhood(*p).contains(&(row, col)) {
                             Some(n)
