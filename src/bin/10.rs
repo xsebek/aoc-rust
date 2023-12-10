@@ -1,7 +1,7 @@
-use std::collections::HashSet;
+use colored::{Color, Colorize};
 use itertools::{iterate, Itertools};
 use pathfinding::prelude::*;
-use colored::{Color, Colorize};
+use std::collections::HashSet;
 
 advent_of_code::solution!(10);
 
@@ -48,16 +48,43 @@ struct Pos {
 
 #[derive(Ord, PartialOrd, Eq, PartialEq, Hash, Copy, Clone, Debug)]
 enum Dir {
-    N, E, S, W,
+    N,
+    E,
+    S,
+    W,
 }
 
 impl Pos {
     fn shifted(self, dir: Dir) -> Option<Pos> {
         match dir {
-            Dir::N => if self.row == 0 { None } else { Some(Pos { row: self.row - 1, ..self}) }
-            Dir::W => if self.col == 0 { None } else { Some(Pos { col: self.col - 1, ..self}) }
-            Dir::S => { Some(Pos {row: self.row + 1, ..self}) }
-            Dir::E => { Some(Pos {col: self.col + 1, ..self}) }
+            Dir::N => {
+                if self.row == 0 {
+                    None
+                } else {
+                    Some(Pos {
+                        row: self.row - 1,
+                        ..self
+                    })
+                }
+            }
+            Dir::W => {
+                if self.col == 0 {
+                    None
+                } else {
+                    Some(Pos {
+                        col: self.col - 1,
+                        ..self
+                    })
+                }
+            }
+            Dir::S => Some(Pos {
+                row: self.row + 1,
+                ..self
+            }),
+            Dir::E => Some(Pos {
+                col: self.col + 1,
+                ..self
+            }),
         }
     }
 
@@ -77,7 +104,10 @@ fn to_connections(c: char, pos: Pos) -> Vec<Pos> {
         '7' => vec![W, S],
         'J' => vec![W, N],
         _ => Vec::new(),
-    }.into_iter().filter_map(|d| pos.shifted(d)).collect()
+    }
+    .into_iter()
+    .filter_map(|d| pos.shifted(d))
+    .collect()
 }
 
 fn pipe_connects(grid: &Matrix<char>, p1: Pos, p2: Pos) -> bool {
@@ -91,14 +121,15 @@ fn pipe_connects(grid: &Matrix<char>, p1: Pos, p2: Pos) -> bool {
 fn step(grid: &Matrix<char>, previous: Pos, pos: Pos) -> Option<Pos> {
     let c = *grid.get(pos.as_tuple())?;
     let connections = to_connections(c, pos);
-    connections.into_iter().find(|p2| {
-        *p2 != previous && pipe_connects(grid, pos, *p2)
-    })
+    connections
+        .into_iter()
+        .find(|p2| *p2 != previous && pipe_connects(grid, pos, *p2))
 }
 
 fn follow_pipe(grid: &Matrix<char>, s: Pos, pos: Pos) -> Option<Vec<Pos>> {
-    let maybe_step= |m: &Option<(Pos, Pos)>| -> Option<(Pos, Pos)>  {
-        m.map(|(prev, p)| step(grid, prev, p).map(|n| (p, n))).flatten()
+    let maybe_step = |m: &Option<(Pos, Pos)>| -> Option<(Pos, Pos)> {
+        m.map(|(prev, p)| step(grid, prev, p).map(|n| (p, n)))
+            .flatten()
     };
     let path: Vec<Pos> = iterate(Some((s, pos)), maybe_step)
         .take_while(|m| m.is_some())
@@ -129,21 +160,41 @@ fn find_path(grid: &Matrix<char>) -> Option<Vec<Pos>> {
 }
 
 fn ray_cast(path: &HashSet<Pos>, row: usize, line: &[char]) -> Vec<bool> {
-    use crate::Dir::{E,S,N};
+    use crate::Dir::{E, N, S};
     let mut result = Vec::new();
     let mut inside = false;
     let mut direction = E;
     for (col, c) in line.iter().enumerate() {
-        if path.contains(&Pos{row, col}) {
+        if path.contains(&Pos { row, col }) {
             result.push(true);
             match c {
                 '-' => continue,
-                '|' => { inside = !inside; },
-                'F' => { inside = !inside; direction = S; },
-                'L' => { inside = !inside; direction = N; },
-                '7' => { if direction == S {inside = !inside}; },
-                'J' => { if direction == N {inside = !inside}; },
-                'S' => { if direction == S {inside = !inside}; } // S is 7 in my input
+                '|' => {
+                    inside = !inside;
+                }
+                'F' => {
+                    inside = !inside;
+                    direction = S;
+                }
+                'L' => {
+                    inside = !inside;
+                    direction = N;
+                }
+                '7' => {
+                    if direction == S {
+                        inside = !inside
+                    };
+                }
+                'J' => {
+                    if direction == N {
+                        inside = !inside
+                    };
+                }
+                'S' => {
+                    if direction == S {
+                        inside = !inside
+                    };
+                } // S is 7 in my input
                 _ => panic!("Forgotten path: {c}"),
             };
         } else {
@@ -154,7 +205,8 @@ fn ray_cast(path: &HashSet<Pos>, row: usize, line: &[char]) -> Vec<bool> {
 }
 
 fn get_inside_path(path: &HashSet<Pos>, input: &Matrix<char>) -> Vec<Vec<bool>> {
-    input.iter()
+    input
+        .iter()
         .enumerate()
         .map(|(row, line)| ray_cast(path, row, line))
         .collect()
@@ -175,12 +227,14 @@ fn pretty(c: char) -> char {
 
 #[allow(unused)]
 fn print_highlighted<P>(input: &Matrix<char>, predicate: P)
-  where P: Fn(char, Pos) -> Option<Color>
+where
+    P: Fn(char, Pos) -> Option<Color>,
 {
     for (row, line) in input.iter().enumerate() {
-        let hs = line.iter().enumerate().group_by(|(col, c)| {
-            predicate(**c, Pos{row, col: *col})
-        });
+        let hs = line
+            .iter()
+            .enumerate()
+            .group_by(|(col, c)| predicate(**c, Pos { row, col: *col }));
         for (h, cs) in hs.into_iter() {
             let s: String = cs.map(|t| pretty(*t.1)).collect();
             if h == Some(Color::Blue) {
@@ -203,15 +257,27 @@ mod tests {
     fn test_part_one() {
         let result = part_one(&advent_of_code::template::read_file("examples", DAY));
         assert_eq!(result, Some(4));
-        let result = part_one(&advent_of_code::template::read_file_indexed("examples", DAY, Some(1)));
+        let result = part_one(&advent_of_code::template::read_file_indexed(
+            "examples",
+            DAY,
+            Some(1),
+        ));
         assert_eq!(result, Some(8));
     }
 
     #[test]
     fn test_part_two() {
-        let result = part_two(&advent_of_code::template::read_file_indexed("examples", DAY, Some(2)));
+        let result = part_two(&advent_of_code::template::read_file_indexed(
+            "examples",
+            DAY,
+            Some(2),
+        ));
         assert_eq!(result, Some(4));
-        let result = part_two(&advent_of_code::template::read_file_indexed("examples", DAY, Some(3)));
+        let result = part_two(&advent_of_code::template::read_file_indexed(
+            "examples",
+            DAY,
+            Some(3),
+        ));
         assert_eq!(result, Some(8));
     }
 }
