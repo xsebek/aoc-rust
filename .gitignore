@@ -25,3 +25,7 @@ data/puzzles/*
 
 # Dhat
 dhat-heap.json
+
+# Benchmarks
+
+data/timings.json
