@@ -15,22 +15,21 @@ pub fn part_two(input: &str) -> Option<usize> {
     let cycle_len = rs.len() - cycle_start;
     let in_cycle = (1_000_000_000 - cycle_start - 1) % cycle_len;
 
-    rs.get(cycle_start + in_cycle)
-        .map(count_load)
+    rs.get(cycle_start + in_cycle).map(count_load)
 }
 
 fn slide_once(platform: Matrix<char>) -> Matrix<char> {
     let mut result = platform;
-    for ir in 0..result.rows-1 {
+    for ir in 0..result.rows - 1 {
         let row = Vec::from(result.iter().nth(ir).unwrap());
         for (ic, &cell) in row.iter().enumerate() {
             // let lower_cell = get(&result, ir+1, ic).unwrap_or('-');
-            let lower_cell = *result.get((ir+1, ic)).unwrap_or(&'-');
+            let lower_cell = *result.get((ir + 1, ic)).unwrap_or(&'-');
             if cell == '.' && lower_cell == 'O' {
                 // set(&mut result, ir, ic, 'O');
                 // set(&mut result, ir+1, ic, '.');
                 *result.get_mut((ir, ic)).unwrap() = 'O';
-                *result.get_mut((ir+1, ic)).unwrap() = '.'
+                *result.get_mut((ir + 1, ic)).unwrap() = '.'
             }
         }
     }
@@ -52,13 +51,19 @@ fn slide(platform: Matrix<char>) -> Matrix<char> {
 
 #[allow(dead_code)]
 fn to_str(platform: &Matrix<char>) -> String {
-    platform.iter().map(|row| row.iter().collect::<String>()).join("\n")
+    platform
+        .iter()
+        .map(|row| row.iter().collect::<String>())
+        .join("\n")
 }
 
 fn count_load(platform: &Matrix<char>) -> usize {
-    platform.iter().rev().enumerate().map(|(ir, row)| {
-        (ir + 1) * row.iter().filter(|&&c| c == 'O').count()
-    }).sum()
+    platform
+        .iter()
+        .rev()
+        .enumerate()
+        .map(|(ir, row)| (ir + 1) * row.iter().filter(|&&c| c == 'O').count())
+        .sum()
 }
 
 fn rotation(platform: Matrix<char>) -> Matrix<char> {

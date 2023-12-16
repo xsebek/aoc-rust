@@ -2,7 +2,8 @@ advent_of_code::solution!(13);
 
 fn solve(input: &str, smudge: bool) -> usize {
     let input = parse(input);
-    input.iter()
+    input
+        .iter()
         .map(|g| {
             let lr = find_reflection(g, smudge);
             let td = find_reflection(&transpose(g.as_ref()), smudge);
@@ -23,18 +24,20 @@ type Grid = Vec<Vec<char>>;
 type Input = Vec<Grid>;
 
 fn parse(input: &str) -> Input {
-    input.split("\n\n").map(|g| {
-        g.lines().map(|l| l.chars().collect()).collect()
-    }).collect()
+    input
+        .split("\n\n")
+        .map(|g| g.lines().map(|l| l.chars().collect()).collect())
+        .collect()
 }
 
 fn find_reflection(grid: &Grid, smudge: bool) -> usize {
-    (0..grid.len()-1)
+    (0..grid.len() - 1)
         .find(|&i| {
             let mut smudge = smudge;
-            let eq = grid[0..=i].iter()
+            let eq = grid[0..=i]
+                .iter()
                 .rev()
-                .zip(grid[i+1..].iter())
+                .zip(grid[i + 1..].iter())
                 .all(|(l, r)| equal_with_smudge(l, r, &mut smudge));
             eq && !smudge
         })
@@ -42,8 +45,8 @@ fn find_reflection(grid: &Grid, smudge: bool) -> usize {
 }
 
 fn transpose<T>(v: &[Vec<T>]) -> Vec<Vec<T>>
-    where
-        T: Clone,
+where
+    T: Clone,
 {
     (0..v.first().map_or(0, |f| f.len()))
         .map(|i| v.iter().map(|inner| inner[i].clone()).collect::<Vec<T>>())
