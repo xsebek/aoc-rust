@@ -67,11 +67,20 @@ fn count_load(platform: &Matrix<char>) -> usize {
 }
 
 fn rotation(platform: Matrix<char>) -> Matrix<char> {
+    // let mut platform = slide(platform); // N
+    // platform = slide(platform.rotated_cw(1)); // W
+    // platform = slide(platform.rotated_cw(1)); // S
+    // platform = slide(platform.rotated_cw(1)); // E
+    // platform.rotated_cw(1) // N
     let mut platform = slide(platform); // N
-    platform = slide(platform.rotated_cw(1)); // W
-    platform = slide(platform.rotated_cw(1)); // S
-    platform = slide(platform.rotated_cw(1)); // E
-    platform.rotated_cw(1) // N
+    platform.rotate_cw(1);
+    platform = slide(platform); // W
+    platform.rotate_cw(1);
+    platform = slide(platform); // S
+    platform.rotate_cw(1);
+    platform = slide(platform); // E
+    platform.rotate_cw(1);
+    platform // N
 }
 
 fn rotations(platform: Matrix<char>) -> (usize, Vec<Matrix<char>>) {
