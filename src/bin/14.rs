@@ -1,107 +1,104 @@
-use std::ops::Deref;
-use itertools::Itertools;
+use itertools::{Itertools, repeat_n};
 use pathfinding::matrix::Matrix;
 
 advent_of_code::solution!(14);
 
 pub fn part_one(input: &str) -> Option<usize> {
-    let input = Matrix::from_rows(input.lines().map(|l| l.chars())).ok()?;
-    let slided = slide(input);
-    Some(count_load(&slided))
+    let mut input = parse(input);
+    input.rotate_ccw(1); // N to W
+    let slided = slide_west(&input);
+    let result = count_west(&slided);
+    Some(result)
 }
 
 pub fn part_two(input: &str) -> Option<usize> {
-    let input = Matrix::from_rows(input.lines().map(|l| l.chars())).ok()?;
+    let mut input = parse(input);
+    input.rotate_ccw(1); // N to W
     let (cycle_start, rs) = rotations(input);
+
     let cycle_len = rs.len() - cycle_start;
     let in_cycle = (1_000_000_000 - cycle_start - 1) % cycle_len;
 
-    rs.get(cycle_start + in_cycle).map(count_load)
+    rs.get(cycle_start + in_cycle).map(count_west)
 }
 
-fn get_row(matrix: &Matrix<char>, row: usize) -> Vec<char> {
-    let data = matrix.deref();
-    Vec::from(&data[row * matrix.columns..(row + 1) * matrix.columns])
+type Platform = Matrix<u8>;
+
+fn parse(input: &str) -> Platform {
+    Platform::from_rows(input.lines().map(|l| l.bytes())).expect("rectangle grid input")
 }
 
-fn slide_once(platform: Matrix<char>) -> Matrix<char> {
-    let mut result = platform;
-    for ir in 0..result.rows - 1 {
-        let row = get_row(&result, ir);
-        for (ic, cell) in row.into_iter().enumerate() {
-            // let lower_cell = get(&result, ir+1, ic).unwrap_or('-');
-            let lower_cell = *result.get((ir + 1, ic)).unwrap_or(&'-');
-            if cell == '.' && lower_cell == 'O' {
-                // set(&mut result, ir, ic, 'O');
-                // set(&mut result, ir+1, ic, '.');
-                *result.get_mut((ir, ic)).unwrap() = 'O';
-                *result.get_mut((ir + 1, ic)).unwrap() = '.'
+fn slide_west(platform: &Platform) -> Platform {
+    Platform::from_rows(platform.iter().map(|row| {
+        let mut result = Vec::with_capacity(row.len());
+        let mut it = row.iter();
+        'outer: while let Some(&c) = it.next() {
+            if c == b'.' {
+                let mut count_dot = 1;
+                for &c2 in it.by_ref() {
+                    if c2 == b'O' {
+                        result.push(c2);
+                    }
+                    else if c2 == b'.' {
+                        count_dot += 1;
+                    }
+                    else {
+                        result.extend(repeat_n(b'.', count_dot));
+                        result.push(c2);
+                        continue 'outer
+                    }
+                }
+                result.extend(repeat_n(b'.', count_dot));
+            }
+            else {
+                result.push(c)
             }
         }
-    }
-    result
+        result
+    })).expect("same dimensions of platform")
 }
 
-fn slide(platform: Matrix<char>) -> Matrix<char> {
-    let mut platform = platform;
-    let mut platform_next = slide_once(platform.clone());
-    //let mut i = 0;
-    while platform != platform_next {
-        //i += 1;
-        //println!("{i}:\n{}\n", to_str(&platform));
-        platform = platform_next;
-        platform_next = slide_once(platform.clone());
-    }
-    platform
-}
-
-#[allow(dead_code)]
-fn to_str(platform: &Matrix<char>) -> String {
-    platform
-        .iter()
-        .map(|row| row.iter().collect::<String>())
-        .join("\n")
-}
-
-fn count_load(platform: &Matrix<char>) -> usize {
-    platform
-        .iter()
-        .rev()
-        .enumerate()
-        .map(|(ir, row)| (ir + 1) * row.iter().filter(|&&c| c == 'O').count())
+fn count_west(platform: &Platform) -> usize {
+    platform.iter()
+        .flat_map(|row| row.iter()
+            .rev()
+            .enumerate()
+            .map(|(i, &c)| if c == b'O' {i + 1} else {0}))
         .sum()
 }
 
-fn rotation(platform: Matrix<char>) -> Matrix<char> {
-    // let mut platform = slide(platform); // N
-    // platform = slide(platform.rotated_cw(1)); // W
-    // platform = slide(platform.rotated_cw(1)); // S
-    // platform = slide(platform.rotated_cw(1)); // E
-    // platform.rotated_cw(1) // N
-    let mut platform = slide(platform); // N
-    platform.rotate_cw(1);
-    platform = slide(platform); // W
-    platform.rotate_cw(1);
-    platform = slide(platform); // S
-    platform.rotate_cw(1);
-    platform = slide(platform); // E
-    platform.rotate_cw(1);
-    platform // N
+#[allow(dead_code)]
+fn to_str(platform: &Platform) -> String {
+    platform
+        .iter()
+        .map(|row| std::str::from_utf8(row).expect("previously ok characters"))
+        .join("\n")
 }
 
-fn rotations(platform: Matrix<char>) -> (usize, Vec<Matrix<char>>) {
-    let mut rotation_list = Vec::new();
-    let mut rotated = rotation(platform);
-    //let mut i = 0;
+fn rotation(platform: &Platform) -> Platform {
+    let mut platform = slide_west(platform); // W
+    platform.rotate_cw(1);
+    platform = slide_west(&platform); // S
+    platform.rotate_cw(1);
+    platform = slide_west(&platform); // E
+    platform.rotate_cw(1);
+    platform = slide_west(&platform); // N
+    platform.rotate_cw(1);
+    platform // W
+}
 
+fn rotations(mut platform: Platform) -> (usize, Vec<Platform>) {
+    let mut rotation_list = Vec::new();
+
+    // let mut i = 0;
     loop {
-        //i += 1;
-        //println!("{i}:\n{}\nLoad: {}\n", to_str(&rotated), count_load(&rotated));
-        rotation_list.push(rotated.clone());
-        rotated = rotation(rotated);
-        if let Some(p) = rotation_list.iter().rposition(|i| i == &rotated) {
+        // i += 1;
+        platform = rotation(&platform);
+        //println!("{i}:\n{}\nLoad: {}\n", to_str(&platform.rotated_cw(1)), count_west(&platform));
+        if let Some(p) = rotation_list.iter().rposition(|i| i == &platform) {
             return (p, rotation_list);
         }
+        rotation_list.push(platform.clone());
     }
 }
 
