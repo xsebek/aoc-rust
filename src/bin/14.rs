@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use itertools::Itertools;
 use pathfinding::matrix::Matrix;
 
@@ -18,11 +19,16 @@ pub fn part_two(input: &str) -> Option<usize> {
     rs.get(cycle_start + in_cycle).map(count_load)
 }
 
+fn get_row(matrix: &Matrix<char>, row: usize) -> Vec<char> {
+    let data = matrix.deref();
+    Vec::from(&data[row * matrix.columns..(row + 1) * matrix.columns])
+}
+
 fn slide_once(platform: Matrix<char>) -> Matrix<char> {
     let mut result = platform;
     for ir in 0..result.rows - 1 {
-        let row = Vec::from(result.iter().nth(ir).unwrap());
-        for (ic, &cell) in row.iter().enumerate() {
+        let row = get_row(&result, ir);
+        for (ic, cell) in row.into_iter().enumerate() {
             // let lower_cell = get(&result, ir+1, ic).unwrap_or('-');
             let lower_cell = *result.get((ir + 1, ic)).unwrap_or(&'-');
             if cell == '.' && lower_cell == 'O' {
