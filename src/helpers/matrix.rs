@@ -1,5 +1,5 @@
-use pathfinding::matrix::Matrix;
 use itertools::Itertools;
+use pathfinding::matrix::Matrix;
 
 pub type Grid = Matrix<u8>;
 

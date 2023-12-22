@@ -1,15 +1,15 @@
-use std::iter::repeat;
-use itertools::{chain, Itertools};
-use pathfinding::prelude::bfs_reach;
 use advent_of_code::helpers::matrix;
+use itertools::{chain, Itertools};
 use pathfinding::matrix::directions::*;
+use pathfinding::prelude::bfs_reach;
+use std::iter::repeat;
 
 advent_of_code::solution!(16);
 
 pub fn part_one(input: &str) -> Option<usize> {
     let input = matrix::parse(input);
     // println!("{}\n", matrix::to_str(&input));
-    let energized_points = energized(&input, (E, (0,0)));
+    let energized_points = energized(&input, (E, (0, 0)));
     // for &p in &energized_points {
     //     input[p] = b'#';
     // }
@@ -20,12 +20,16 @@ pub fn part_one(input: &str) -> Option<usize> {
 pub fn part_two(input: &str) -> Option<usize> {
     let input = matrix::parse(input);
     let start = chain!(
-        repeat(W).zip((0..input.rows).map(|r| (r, input.columns-1))),
+        repeat(W).zip((0..input.rows).map(|r| (r, input.columns - 1))),
         repeat(E).zip((0..input.rows).map(|r| (r, 0))),
         repeat(S).zip((0..input.columns).map(|c| (0, c))),
-        repeat(N).zip((0..input.columns).map(|c| (input.rows-1, c)))
-    ).collect::<Vec<LightIx>>();
-    start.into_iter().map(|ix| energized(&input, ix).len()).max()
+        repeat(N).zip((0..input.columns).map(|c| (input.rows - 1, c)))
+    )
+    .collect::<Vec<LightIx>>();
+    start
+        .into_iter()
+        .map(|ix| energized(&input, ix).len())
+        .max()
 }
 
 type Dir = (isize, isize);
@@ -37,28 +41,30 @@ fn energized(grid: &matrix::Grid, start: LightIx) -> Vec<Point> {
     bfs.map(|(_d, p)| p).unique().collect()
 }
 
-fn reach(grid: &matrix::Grid, (dir, pos): LightIx) -> impl IntoIterator<Item=LightIx> {
-    let move_in = |d: Dir| grid.move_in_direction(pos, d)
-        .map(|p| (d, p));
+fn reach(grid: &matrix::Grid, (dir, pos): LightIx) -> impl IntoIterator<Item = LightIx> {
+    let move_in = |d: Dir| grid.move_in_direction(pos, d).map(|p| (d, p));
 
     let move_in1 = |d| [move_in(d), None];
 
-    grid.get(pos).map_or([None, None], |&c| {
-        match (dir, c) {
-            (N, b'/') => move_in1(E),
-            (E, b'/') => move_in1(N),
-            (S, b'/') => move_in1(W),
-            (W, b'/') => move_in1(S),
-            (N, b'\\') => move_in1(W),
-            (E, b'\\') => move_in1(S),
-            (S, b'\\') => move_in1(E),
-            (W, b'\\') => move_in1(N),
-            (N | S, b'-') => [move_in(W), move_in(E)],
-            (E | W, b'|') => [move_in(N), move_in(S)],
-            // . or - or |
-            (_, _) => move_in1(dir),
-        }
-    }).into_iter().flatten()
+    grid.get(pos)
+        .map_or([None, None], |&c| {
+            match (dir, c) {
+                (N, b'/') => move_in1(E),
+                (E, b'/') => move_in1(N),
+                (S, b'/') => move_in1(W),
+                (W, b'/') => move_in1(S),
+                (N, b'\\') => move_in1(W),
+                (E, b'\\') => move_in1(S),
+                (S, b'\\') => move_in1(E),
+                (W, b'\\') => move_in1(N),
+                (N | S, b'-') => [move_in(W), move_in(E)],
+                (E | W, b'|') => [move_in(N), move_in(S)],
+                // . or - or |
+                (_, _) => move_in1(dir),
+            }
+        })
+        .into_iter()
+        .flatten()
 }
 
 #[cfg(test)]

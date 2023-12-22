@@ -1,4 +1,4 @@
-use itertools::{Itertools, repeat_n};
+use itertools::{repeat_n, Itertools};
 use pathfinding::matrix::Matrix;
 
 advent_of_code::solution!(14);
@@ -38,32 +38,33 @@ fn slide_west(platform: &Platform) -> Platform {
                 for &c2 in it.by_ref() {
                     if c2 == b'O' {
                         result.push(c2);
-                    }
-                    else if c2 == b'.' {
+                    } else if c2 == b'.' {
                         count_dot += 1;
-                    }
-                    else {
+                    } else {
                         result.extend(repeat_n(b'.', count_dot));
                         result.push(c2);
-                        continue 'outer
+                        continue 'outer;
                     }
                 }
                 result.extend(repeat_n(b'.', count_dot));
-            }
-            else {
+            } else {
                 result.push(c)
             }
         }
         result
-    })).expect("same dimensions of platform")
+    }))
+    .expect("same dimensions of platform")
 }
 
 fn count_west(platform: &Platform) -> usize {
-    platform.iter()
-        .flat_map(|row| row.iter()
-            .rev()
-            .enumerate()
-            .map(|(i, &c)| if c == b'O' {i + 1} else {0}))
+    platform
+        .iter()
+        .flat_map(|row| {
+            row.iter()
+                .rev()
+                .enumerate()
+                .map(|(i, &c)| if c == b'O' { i + 1 } else { 0 })
+        })
         .sum()
 }
 

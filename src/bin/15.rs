@@ -2,23 +2,27 @@ use itertools::Itertools;
 advent_of_code::solution!(15);
 
 pub fn part_one(input: &str) -> Option<u32> {
-    Some(input.split(',')
-        .map(|e| e.trim())
-        .map(Hash::runs)
-        .map(|h| h.0)
-        .sum())
+    Some(
+        input
+            .split(',')
+            .map(|e| e.trim())
+            .map(Hash::runs)
+            .map(|h| h.0)
+            .sum(),
+    )
 }
 
 pub fn part_two(input: &str) -> Option<usize> {
-    Some(input
-        .split(',')
-        .map(|e| e.trim())
-        .fold(HashMap::new(), HashMap::step)
-        .boxes
-        .iter()
-        .enumerate()
-        .map(focusing_power)
-        .sum()
+    Some(
+        input
+            .split(',')
+            .map(|e| e.trim())
+            .fold(HashMap::new(), HashMap::step)
+            .boxes
+            .iter()
+            .enumerate()
+            .map(focusing_power)
+            .sum(),
     )
 }
 
@@ -37,13 +41,13 @@ impl Hash {
 type Lens = u8;
 
 struct HashMap {
-    boxes: [Vec<(String, Lens)>;256]
+    boxes: [Vec<(String, Lens)>; 256],
 }
 
 impl HashMap {
     fn new() -> Self {
         HashMap {
-            boxes: std::array::from_fn(|_| Vec::new())
+            boxes: std::array::from_fn(|_| Vec::new()),
         }
     }
 
@@ -62,7 +66,9 @@ impl HashMap {
 
     fn remove_lens(&mut self, label: &str) {
         let box_num = Hash::runs(label).0 as usize;
-        let pos = self.boxes[box_num].iter().position(|(lab, _l)| lab == label);
+        let pos = self.boxes[box_num]
+            .iter()
+            .position(|(lab, _l)| lab == label);
         if let Some(pos) = pos {
             self.boxes[box_num].remove(pos);
         }
@@ -71,7 +77,9 @@ impl HashMap {
     fn update_lens(&mut self, label: &str, lens: &str) {
         let box_num = Hash::runs(label).0 as usize;
         let lens = lens.parse().expect("lens number");
-        let pos = self.boxes[box_num].iter().position(|(lab, _l)| lab == label);
+        let pos = self.boxes[box_num]
+            .iter()
+            .position(|(lab, _l)| lab == label);
         if let Some(pos) = pos {
             self.boxes[box_num][pos].1 = lens;
         } else {
@@ -83,7 +91,8 @@ impl HashMap {
     fn print(&self) {
         for (i, b) in self.boxes.iter().enumerate() {
             if !b.is_empty() {
-                let lenses = b.iter()
+                let lenses = b
+                    .iter()
                     .map(|(lab, lens)| format!("[{lab} {lens}]"))
                     .join(" ");
                 println!("Box {i}: {lenses}");
@@ -93,7 +102,8 @@ impl HashMap {
 }
 
 fn focusing_power((box_index, lenses): (usize, &Vec<(String, Lens)>)) -> usize {
-    lenses.iter()
+    lenses
+        .iter()
         .enumerate()
         .map(|(lens_index, (_lab, lens))| (box_index + 1) * (lens_index + 1) * (*lens as usize))
         .sum()
