@@ -1,4 +1,4 @@
-use std::iter::{Chain, repeat};
+use std::iter::repeat;
 use itertools::{chain, Itertools};
 use pathfinding::prelude::bfs_reach;
 use advent_of_code::helpers::matrix;
@@ -37,26 +37,28 @@ fn energized(grid: &matrix::Grid, start: LightIx) -> Vec<Point> {
     bfs.map(|(_d, p)| p).unique().collect()
 }
 
-fn reach(grid: &matrix::Grid, (dir, pos): LightIx) -> Vec<LightIx> {
+fn reach(grid: &matrix::Grid, (dir, pos): LightIx) -> impl IntoIterator<Item=LightIx> {
     let move_in = |d: Dir| grid.move_in_direction(pos, d)
         .map(|p| (d, p));
-    grid.get(pos).map_or(Vec::new(), |&c| {
+
+    let move_in1 = |d| [move_in(d), None];
+
+    grid.get(pos).map_or([None, None], |&c| {
         match (dir, c) {
-            // TODO: use vector transpose
-            (N, b'/') => move_in(E).into_iter().collect(),
-            (E, b'/') => move_in(N).into_iter().collect(),
-            (S, b'/') => move_in(W).into_iter().collect(),
-            (W, b'/') => move_in(S).into_iter().collect(),
-            (N, b'\\') => move_in(W).into_iter().collect(),
-            (E, b'\\') => move_in(S).into_iter().collect(),
-            (S, b'\\') => move_in(E).into_iter().collect(),
-            (W, b'\\') => move_in(N).into_iter().collect(),
-            (N | S, b'-') => [move_in(W), move_in(E)].into_iter().flatten().collect(),
-            (E | W, b'|') => [move_in(N), move_in(S)].into_iter().flatten().collect(),
+            (N, b'/') => move_in1(E),
+            (E, b'/') => move_in1(N),
+            (S, b'/') => move_in1(W),
+            (W, b'/') => move_in1(S),
+            (N, b'\\') => move_in1(W),
+            (E, b'\\') => move_in1(S),
+            (S, b'\\') => move_in1(E),
+            (W, b'\\') => move_in1(N),
+            (N | S, b'-') => [move_in(W), move_in(E)],
+            (E | W, b'|') => [move_in(N), move_in(S)],
             // . or - or |
-            (_, _) => move_in(dir).into_iter().collect(),
+            (_, _) => move_in1(dir),
         }
-    })
+    }).into_iter().flatten()
 }
 
 #[cfg(test)]
