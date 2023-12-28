@@ -30,24 +30,26 @@ Solutions for [Advent of Code](https://adventofcode.com/) in [Rust](https://www.
 
 | Day | Part 1 | Part 2 |
 | :---: | :---: | :---:  |
-| [Day 1](./src/bin/01.rs) | `103.1µs` | `187.0µs` |
-| [Day 2](./src/bin/02.rs) | `84.9µs` | `78.1µs` |
-| [Day 3](./src/bin/03.rs) | `327.0µs` | `2.7ms` |
-| [Day 4](./src/bin/04.rs) | `181.8µs` | `164.7µs` |
-| [Day 5](./src/bin/05.rs) | `30.8µs` | `968.7µs` |
-| [Day 6](./src/bin/06.rs) | `442.0ns` | `12.3ms` |
-| [Day 7](./src/bin/07.rs) | `381.6µs` | `3.2ms` |
-| [Day 8](./src/bin/08.rs) | `517.7µs` | `2.7ms` |
-| [Day 9](./src/bin/09.rs) | `336.2µs` | `307.9µs` |
-| [Day 10](./src/bin/10.rs) | `4.4ms` | `5.0ms` |
-| [Day 11](./src/bin/11.rs) | `348.2µs` | `321.6µs` |
-| [Day 13](./src/bin/13.rs) | `334.2µs` | `324.4µs` |
-| [Day 14](./src/bin/14.rs) | `28.2µs` | `22.2ms` |
-| [Day 15](./src/bin/15.rs) | `74.7µs` | `775.9µs` |
-| [Day 16](./src/bin/16.rs) | `911.2µs` | `233.2ms` |
-| [Day 17](./src/bin/17.rs) | `35.4ms` | `58.1ms` |
+| [Day 1](./src/bin/01.rs) | `105.6µs` | `191.4µs` |
+| [Day 2](./src/bin/02.rs) | `85.9µs` | `77.8µs` |
+| [Day 3](./src/bin/03.rs) | `339.2µs` | `2.7ms` |
+| [Day 4](./src/bin/04.rs) | `193.1µs` | `173.4µs` |
+| [Day 5](./src/bin/05.rs) | `31.4µs` | `944.4µs` |
+| [Day 6](./src/bin/06.rs) | `656.0ns` | `12.1ms` |
+| [Day 7](./src/bin/07.rs) | `387.8µs` | `3.2ms` |
+| [Day 8](./src/bin/08.rs) | `512.1µs` | `2.7ms` |
+| [Day 9](./src/bin/09.rs) | `372.5µs` | `310.4µs` |
+| [Day 10](./src/bin/10.rs) | `4.5ms` | `4.9ms` |
+| [Day 11](./src/bin/11.rs) | `349.7µs` | `323.7µs` |
+| [Day 13](./src/bin/13.rs) | `342.9µs` | `322.0µs` |
+| [Day 14](./src/bin/14.rs) | `40.4µs` | `22.7ms` |
+| [Day 15](./src/bin/15.rs) | `75.1µs` | `781.6µs` |
+| [Day 16](./src/bin/16.rs) | `966.9µs` | `233.3ms` |
+| [Day 17](./src/bin/17.rs) | `31.7ms` | `58.8ms` |
+| [Day 18](./src/bin/18.rs) | `51.7µs` | `58.1µs` |
+| [Day 19](./src/bin/19.rs) | `278.2µs` | `476.1µs` |
 
-**Total: 385.99ms**
+**Total: 384.39ms**
 <!--- benchmarking table --->
 
 ---
