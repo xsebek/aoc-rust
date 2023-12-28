@@ -1,11 +1,17 @@
+use advent_of_code::helpers::matrix::{self, Grid};
 use pathfinding::matrix::directions::DIRECTIONS_4;
 use pathfinding::prelude::dijkstra;
-use advent_of_code::helpers::matrix::{self, Grid};
 advent_of_code::solution!(17);
 
 fn solve(input: &str, min: usize, max: usize) -> Option<u32> {
     let input = parse(input);
-    let hot = hottest(&input, ((0,0), None), (input.rows-1, input.columns-1), min, max);
+    let hot = hottest(
+        &input,
+        ((0, 0), None),
+        (input.rows - 1, input.columns - 1),
+        min,
+        max,
+    );
     // let path_map = Matrix::from_fn(input.rows, input.columns, |p| {
     //     hot.as_ref().unwrap().0.iter().find(|&&v| v.0 == p).map_or(b'.', |&v| v.1.map_or(b'S', d_to_str))
     // });
@@ -76,7 +82,11 @@ mod tests {
 
     #[test]
     fn test_part_two_worst_case() {
-        let result = part_two(&advent_of_code::template::read_file_indexed("examples", DAY, Some(2)));
+        let result = part_two(&advent_of_code::template::read_file_indexed(
+            "examples",
+            DAY,
+            Some(2),
+        ));
         assert_eq!(result, Some(71));
     }
 }
